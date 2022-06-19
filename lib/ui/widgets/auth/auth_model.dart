@@ -1,0 +1,60 @@
+import 'package:flutter/material.dart';
+import 'package:themoviedb/domain/data_provider/session_data_provider.dart';
+
+import '../../../domain/api_client/api_client.dart';
+import '../../navigation/main_navigation.dart';
+
+class AuthModel extends ChangeNotifier {
+  final _apiClient = ApiClient();
+  final _sessionDataProvider = SessionDataProvider();
+
+  final loginTextController = TextEditingController(text: ApiClient.username);
+
+  final passwordTextController =
+      TextEditingController(text: ApiClient.password);
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  bool _isAuthProgress = false;
+  bool get canStartAuth => !_isAuthProgress;
+
+  Future<void> auth(BuildContext context) async {
+    final login = loginTextController.text;
+    final password = passwordTextController.text;
+    if (login.isEmpty || password.isEmpty) {
+      _errorMessage = 'Заполните логин и пароль';
+      notifyListeners();
+      return;
+    }
+    _errorMessage = null;
+    _isAuthProgress = true;
+    notifyListeners();
+
+    try {
+      final sessionId = await _apiClient.auth(
+        username: login,
+        password: password,
+      );
+
+      await _sessionDataProvider.set(sessionId: sessionId);
+
+      await Navigator.of(context)
+          .pushReplacementNamed(MainNavigationRouteNames.mainScreen);
+    } on ApiClientException catch (e) {
+      switch (e.type) {
+        case ApiClientExceptionType.Network:
+          _errorMessage = 'Сервер недоступен проверьте подключение к интернету';
+          break;
+        case ApiClientExceptionType.Auth:
+          _errorMessage = 'Неправильный логин или пароль';
+          break;
+        case ApiClientExceptionType.Other:
+          _errorMessage = 'Что-то пошло не так';
+          break;
+      }
+    }
+    _isAuthProgress = false;
+    notifyListeners();
+  }
+}
