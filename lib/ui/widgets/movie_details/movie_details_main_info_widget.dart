@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:themoviedb/resources/resources.dart';
 
+import '../../../resources/resources.dart';
 import '../elements/radial_percent_widget.dart';
 
 class MovieDetailsMainInfoWidget extends StatelessWidget {
@@ -38,7 +38,7 @@ class _TopPostersWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Stack(
         children: [
@@ -146,8 +146,8 @@ class _ScoreWidget extends StatelessWidget {
                   lineWidth: 3,
                   child: Stack(
                     clipBehavior: Clip.none,
-                    children: [
-                      const Positioned(
+                    children: const [
+                      Positioned(
                         left: 2,
                         top: 5,
                         child: Text(
@@ -159,10 +159,10 @@ class _ScoreWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const Positioned(
+                      Positioned(
                         top: 5,
                         right: -1,
-                        child:  Text(
+                        child: Text(
                           '%',
                           style: TextStyle(
                             color: Colors.white,
@@ -178,7 +178,7 @@ class _ScoreWidget extends StatelessWidget {
               const SizedBox(width: 10),
               const Text(
                 'User Score',
-                style:  TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -191,13 +191,13 @@ class _ScoreWidget extends StatelessWidget {
         TextButton(
           onPressed: () {},
           child: Row(
-            children: [
-              const Icon(
+            children: const [
+              Icon(
                 Icons.play_arrow,
                 color: Colors.white,
                 size: 20,
               ),
-              const Text(
+              Text(
                 ' Play Trailer',
                 style: TextStyle(
                   color: Colors.white,
@@ -248,7 +248,7 @@ class _OverViewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Align(
       alignment: Alignment.centerLeft,
-      child:  Text(
+      child: Text(
         'Overview',
         style: TextStyle(
           color: Colors.white,
@@ -269,7 +269,7 @@ class _DescriptionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Text(
       'Peter Parker is unmasked and no longer able to separate his normal life from the high-stakes of being a super-hero. When he asks for help from Doctor Strange the stakes become even more dangerous, forcing him to discover what it truly means to be Spider-Man.',
-      style:  TextStyle(
+      style: TextStyle(
         color: Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.w400,
@@ -305,43 +305,18 @@ class _PeopleWidgets extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Stan Lee', style: nameStyle),
-                    const Text('Characters', style: jobTitleStyle),
+                  children: const [
+                    Text('Stan Lee', style: nameStyle),
+                    Text('Characters', style: jobTitleStyle),
                   ],
                 ),
               ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Steve Ditko', style: nameStyle),
-                    const Text('Characters', style: jobTitleStyle),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Jon Watts', style: nameStyle),
-                    const Text('Director', style: jobTitleStyle),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Erik Sommers', style: nameStyle),
-                    const Text('Writer', style: jobTitleStyle),
+                  children: const [
+                    Text('Steve Ditko', style: nameStyle),
+                    Text('Characters', style: jobTitleStyle),
                   ],
                 ),
               ),
@@ -355,9 +330,34 @@ class _PeopleWidgets extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Chris McKenna', style: nameStyle),
-                    const Text('Writer', style: jobTitleStyle),
+                  children: const [
+                    Text('Jon Watts', style: nameStyle),
+                    Text('Director', style: jobTitleStyle),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text('Erik Sommers', style: nameStyle),
+                    Text('Writer', style: jobTitleStyle),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text('Chris McKenna', style: nameStyle),
+                    Text('Writer', style: jobTitleStyle),
                   ],
                 ),
               ),

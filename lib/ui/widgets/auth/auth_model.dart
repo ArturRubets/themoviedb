@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:themoviedb/domain/data_provider/session_data_provider.dart';
 
 import '../../../domain/api_client/api_client.dart';
+import '../../../domain/data_provider/session_data_provider.dart';
 import '../../navigation/main_navigation.dart';
 
 class AuthModel extends ChangeNotifier {
@@ -20,6 +20,8 @@ class AuthModel extends ChangeNotifier {
   bool get canStartAuth => !_isAuthProgress;
 
   Future<void> auth(BuildContext context) async {
+    var navigator = Navigator.of(context);
+
     final login = loginTextController.text;
     final password = passwordTextController.text;
     if (login.isEmpty || password.isEmpty) {
@@ -39,17 +41,16 @@ class AuthModel extends ChangeNotifier {
 
       await _sessionDataProvider.set(sessionId: sessionId);
 
-      await Navigator.of(context)
-          .pushReplacementNamed(MainNavigationRouteNames.mainScreen);
+      await navigator.pushReplacementNamed(MainNavigationRouteNames.mainScreen);
     } on ApiClientException catch (e) {
       switch (e.type) {
-        case ApiClientExceptionType.Network:
+        case ApiClientExceptionType.network:
           _errorMessage = 'Сервер недоступен проверьте подключение к интернету';
           break;
-        case ApiClientExceptionType.Auth:
+        case ApiClientExceptionType.auth:
           _errorMessage = 'Неправильный логин или пароль';
           break;
-        case ApiClientExceptionType.Other:
+        case ApiClientExceptionType.other:
           _errorMessage = 'Что-то пошло не так';
           break;
       }

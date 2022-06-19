@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:themoviedb/resources/resources.dart';
+
+import '../../../resources/resources.dart';
 
 class MovieDetailsMainScreenCastWidget extends StatelessWidget {
   const MovieDetailsMainScreenCastWidget({Key? key}) : super(key: key);
@@ -30,7 +31,7 @@ class MovieDetailsMainScreenCastWidget extends StatelessWidget {
                   itemExtent: 140,
                   itemCount: 20,
                   scrollDirection: Axis.horizontal,
-                  itemBuilder: (BuildContext context, int index) {
+                  itemBuilder: (context, index) {
                     return Container(
                       clipBehavior: Clip.hardEdge,
                       margin: const EdgeInsets.only(left: 10, right: 4),
@@ -50,9 +51,9 @@ class MovieDetailsMainScreenCastWidget extends StatelessWidget {
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.max,
-                        children: [
-                          const Image(image: AssetImage(AppImages.tomHolland)),
-                          const Padding(
+                        children: const [
+                          Image(image: AssetImage(AppImages.tomHolland)),
+                          Padding(
                             padding: EdgeInsets.only(
                               left: 10,
                               top: 10,
@@ -68,7 +69,7 @@ class MovieDetailsMainScreenCastWidget extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.only(left: 10, top: 5),
                             child: Text(
                               'Peter Parker / Spider-Man',

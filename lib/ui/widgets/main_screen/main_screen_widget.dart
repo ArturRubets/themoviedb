@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:themoviedb/domain/data_provider/session_data_provider.dart';
 
+import '../../../domain/data_provider/session_data_provider.dart';
+import '../../../library/widgets/inherited/provider.dart';
+import '../movie_list/movie_list_model.dart';
 import '../movie_list/movie_list_widget.dart';
 
 class MainScreenWidget extends StatefulWidget {
@@ -12,6 +14,13 @@ class MainScreenWidget extends StatefulWidget {
 
 class _MainScreenWidgetState extends State<MainScreenWidget> {
   int _selectedTab = 0;
+  final _movieListModel = MovieListModel();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _movieListModel.setupLocale(context);
+  }
 
   void onSelectTab(int index) {
     if (_selectedTab == index) return;
@@ -36,23 +45,26 @@ class _MainScreenWidgetState extends State<MainScreenWidget> {
         index: _selectedTab,
         children: [
           const Text('News'),
-          MovieListWidget(),
+          NotifierProvider(
+            model: _movieListModel,
+            child: const MovieListWidget(),
+          ),
           const Text('Series'),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: onSelectTab,
         currentIndex: _selectedTab,
-        items: [
-          const BottomNavigationBarItem(
+        items: const [
+          BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'News',
           ),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.movie_filter),
             label: 'Movies',
           ),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.tv),
             label: 'Series',
           ),

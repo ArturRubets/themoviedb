@@ -4,10 +4,12 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import '../entity/popular_movie_response.dart';
+
 enum ApiClientExceptionType {
-  Network,
-  Auth,
-  Other,
+  network,
+  auth,
+  other,
 }
 
 class ApiClientException implements Exception {
@@ -22,10 +24,12 @@ class ApiClientException implements Exception {
 
 class ApiClient {
   static const _host = 'https://api.themoviedb.org/3';
-  static const _imageUrl = 'https://image.tmdb.org/t/p/w500';
   static const _apiKey = '03bf18a1588eb1f64c6692e2ed80e646';
+  static const _imageUrl = 'https://image.tmdb.org/t/p/w500';
   static const username = 'Artur786746546';
   static const password = 'KXZPW!pa6xL5cdM';
+
+  static String imageUrl(String path) => _imageUrl + path;
 
   Future<String> auth({
     required String username,
@@ -39,20 +43,18 @@ class ApiClient {
         password: password,
         requestToken: token,
       );
-
       final sessionId = _makeSession(requestToken: validToken);
-
       return sessionId;
     } on ApiClientException {
       rethrow;
     } on SocketException catch (e) {
       throw ApiClientException(
-        type: ApiClientExceptionType.Network,
+        type: ApiClientExceptionType.network,
         message: e.message,
       );
     } catch (e) {
       throw ApiClientException(
-        type: ApiClientExceptionType.Other,
+        type: ApiClientExceptionType.other,
         message: e.toString(),
       );
     }
@@ -76,14 +78,36 @@ class ApiClient {
       final jsonResponse =
           convert.jsonDecode(response.body) as Map<String, dynamic>;
 
-      final request_token = jsonResponse['request_token'] as String;
+      final requestToken = jsonResponse['request_token'] as String;
 
-      return request_token;
+      return requestToken;
     } else if (response.statusCode == 401) {
       throw const ApiClientException(
-          type: ApiClientExceptionType.Other); // Ошибка неверного токена.
+          type: ApiClientExceptionType.other); // Ошибка неверного токена.
     } else {
-      throw const ApiClientException(type: ApiClientExceptionType.Other);
+      throw const ApiClientException(type: ApiClientExceptionType.other);
+    }
+  }
+
+  Future<PopularMovieResponse> popularMovie(int page, String locale) async {
+    var url = _makeUri(
+      '/movie/popular',
+      <String, dynamic>{
+        'api_key': _apiKey,
+        'language': locale,
+        'page': page.toString(),
+      },
+    );
+
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonResponse =
+          convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+      final popularMovieResponse = PopularMovieResponse.fromJson(jsonResponse);
+      return popularMovieResponse;
+    } else {
+      throw const ApiClientException(type: ApiClientExceptionType.other);
     }
   }
 
@@ -106,13 +130,13 @@ class ApiClient {
     if (response.statusCode == 200) {
       final jsonResponse =
           convert.jsonDecode(response.body) as Map<String, dynamic>;
-      final request_token = jsonResponse['request_token'] as String;
-      return request_token;
+      final requestToken = jsonResponse['request_token'] as String;
+      return requestToken;
     } else if (response.statusCode == 401) {
       throw const ApiClientException(
-          type: ApiClientExceptionType.Auth); // Ошибка авторизации.
+          type: ApiClientExceptionType.auth); // Ошибка авторизации.
     } else {
-      throw const ApiClientException(type: ApiClientExceptionType.Other);
+      throw const ApiClientException(type: ApiClientExceptionType.other);
     }
   }
 
@@ -140,9 +164,9 @@ class ApiClient {
       final sessionId = jsonResponse['session_id'] as String;
       return sessionId;
     } else if (response.statusCode == 401) {
-      throw const ApiClientException(type: ApiClientExceptionType.Other);
+      throw const ApiClientException(type: ApiClientExceptionType.other);
     } else {
-      throw const ApiClientException(type: ApiClientExceptionType.Other);
+      throw const ApiClientException(type: ApiClientExceptionType.other);
     }
   }
 }

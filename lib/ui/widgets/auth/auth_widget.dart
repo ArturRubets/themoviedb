@@ -20,8 +20,8 @@ class _AuthWidgetState extends State<AuthWidget> {
         title: const Text('Login to your account'),
       ),
       body: ListView(
-        children: [
-          const _HeaderWidget(),
+        children: const [
+          _HeaderWidget(),
         ],
       ),
     );
@@ -42,7 +42,7 @@ class _HeaderWidget extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 25),
-          FormWidget(),
+          const FormWidget(),
           const SizedBox(height: 25),
           Text.rich(
             TextSpan(
@@ -82,7 +82,7 @@ class _HeaderWidget extends StatelessWidget {
 }
 
 class FormWidget extends StatelessWidget {
-  FormWidget({Key? key}) : super(key: key);
+  const FormWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
