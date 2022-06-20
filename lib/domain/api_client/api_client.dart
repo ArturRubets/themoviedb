@@ -111,6 +111,29 @@ class ApiClient {
     }
   }
 
+  Future<PopularMovieResponse> searchMovie(int page, String locale, String query) async {
+    var url = _makeUri(
+      '/search/movie',
+      <String, dynamic>{
+        'api_key': _apiKey,
+        'language': locale,
+        'page': page.toString(),
+        'query': query,
+      },
+    );
+
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonResponse =
+          convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+      final popularMovieResponse = PopularMovieResponse.fromJson(jsonResponse);
+      return popularMovieResponse;
+    } else {
+      throw const ApiClientException(type: ApiClientExceptionType.other);
+    }
+  }
+
   Future<String> _validateUser({
     required String username,
     required String password,

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../domain/api_client/api_client.dart';
 import '../../../domain/entity/movie.dart';
+import '../../../domain/entity/popular_movie_response.dart';
 import '../../navigation/main_navigation.dart';
 
 class MovieListModel extends ChangeNotifier {
@@ -14,19 +17,32 @@ class MovieListModel extends ChangeNotifier {
   int _currentPage = 0;
   int _totalPage = 1;
   bool _isLoadingInProgress = false;
+  String? _searchQuery;
+  Timer? searchDebounce;
 
   String stringFromDate(DateTime? date) =>
       date == null ? '' : _dateFormat.format(date);
 
-  void setupLocale(BuildContext context) {
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    if (_locale == locale) return;
-    _locale = locale;
-    _dateFormat = DateFormat.yMMMMd(locale);
+  Future<void> setupLocale(BuildContext context) async {
+    _locale = Localizations.localeOf(context).toLanguageTag();
+    _dateFormat = DateFormat.yMMMMd(_locale);
+    await _resetList();
+  }
+
+  Future<void> _resetList() async {
     _currentPage = 0;
     _totalPage = 1;
     _movies.clear();
-    _loadMovies();
+    await _loadMovies();
+  }
+
+  Future<PopularMovieResponse> _downloadType(
+      int nextPage, String locale) async {
+    if (_searchQuery == null) {
+      return await _apiClient.popularMovie(nextPage, _locale);
+    } else {
+      return await _apiClient.searchMovie(nextPage, locale, _searchQuery!);
+    }
   }
 
   Future<void> _loadMovies() async {
@@ -34,7 +50,7 @@ class MovieListModel extends ChangeNotifier {
     _isLoadingInProgress = true;
     final nextPage = _currentPage + 1;
     try {
-      final moviesResponse = await _apiClient.popularMovie(nextPage, _locale);
+      final moviesResponse = await _downloadType(nextPage, _locale);
       _movies.addAll(moviesResponse.movies);
       _currentPage = moviesResponse.page;
       _totalPage = moviesResponse.totalPages;
@@ -43,6 +59,15 @@ class MovieListModel extends ChangeNotifier {
     } catch (e) {
       _isLoadingInProgress = false;
     }
+  }
+
+  Future<void> searchMovie(String text) async {
+    searchDebounce?.cancel();
+    searchDebounce = Timer(const Duration(milliseconds: 600), () async {
+      if (_searchQuery == text) return;
+      _searchQuery = text.isEmpty ? null : text;
+      await _resetList();
+    });
   }
 
   void onMovieTap(BuildContext context, int index) {

@@ -46,8 +46,9 @@ class MovieListWidget extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          Image.network(ApiClient.imageUrl(posterPath)),
-                          const SizedBox(width: 15),
+                          if (posterPath.isNotEmpty)
+                            Image.network(ApiClient.imageUrl(posterPath)),
+                          const SizedBox(width: 5),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,9 +95,9 @@ class MovieListWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: TextField(
-            // controller: _searchController,
+            onChanged:  model.searchMovie,
             decoration: InputDecoration(
-              labelText: 'Search',
+              labelText: 'Поиск',
               filled: true,
               fillColor: Colors.white.withAlpha(235),
               border: const OutlineInputBorder(),
