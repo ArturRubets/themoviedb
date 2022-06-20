@@ -22,15 +22,16 @@ class Movie {
   });
 
   final bool adult;
-  final String backdropPath;
+  final String? backdropPath;
   final List<int> genreIds;
   final int id;
   final String originalLanguage;
   final String originalTitle;
   final String overview;
   final double popularity;
-  final String posterPath;
-  final DateTime releaseDate;
+  final String? posterPath;
+  @JsonKey(fromJson: _parseDateFromString)
+  final DateTime? releaseDate;
   final String title;
   final bool video;
   final double voteAverage;
@@ -38,4 +39,9 @@ class Movie {
 
   factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);
   Map<String, dynamic> toJson() => _$MovieToJson(this);
+
+  static DateTime? _parseDateFromString(String? rawDate) {
+    if (rawDate == null || rawDate.isEmpty) return null;
+    return DateTime.tryParse(rawDate);
+  }
 }
