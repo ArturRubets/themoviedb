@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/api_client/api_client.dart';
 import '../../../library/widgets/inherited/provider.dart';
+import '../../navigation/main_navigation.dart';
 import '../elements/radial_percent_widget.dart';
 import 'movie_details_model.dart';
 
@@ -138,6 +139,9 @@ class _MovieNameWidget extends StatelessWidget {
 class _ScoreWidget extends StatelessWidget {
   const _ScoreWidget({Key? key}) : super(key: key);
 
+  void navigateToTrailer(BuildContext context, String trailerKey) => Navigator.of(context)
+      .pushNamed(MainNavigationRouteNames.movieTrailerWidget, arguments: trailerKey);
+
   @override
   Widget build(BuildContext context) {
     final model = NotifierProvider.of<MovieDetailsModel>(context);
@@ -149,6 +153,12 @@ class _ScoreWidget extends StatelessWidget {
       radialPercentWidget1 = score / 10;
       radialPercentWidget2 = (score * 10).toInt();
     }
+
+    final videos = model?.movieDetails?.videos.results
+        .where((video) => video.type == 'Trailer' && video.site == 'YouTube')
+        .toList();
+
+    final trailerKey = videos?.isNotEmpty == true ? videos?.first.key : null;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -211,25 +221,26 @@ class _ScoreWidget extends StatelessWidget {
           ),
         ),
         Container(color: Colors.grey, width: 1, height: 20),
-        TextButton(
-          onPressed: () {},
-          child: Row(
-            children: const [
-              Icon(
-                Icons.play_arrow,
-                color: Colors.white,
-                size: 20,
-              ),
-              Text(
-                ' Play Trailer',
-                style: TextStyle(
+        if (trailerKey != null)
+          TextButton(
+            onPressed: () => navigateToTrailer(context, trailerKey),
+            child: Row(
+              children: const [
+                Icon(
+                  Icons.play_arrow,
                   color: Colors.white,
-                  fontSize: 16,
+                  size: 20,
                 ),
-              ),
-            ],
+                Text(
+                  ' Play Trailer',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

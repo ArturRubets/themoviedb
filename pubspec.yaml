@@ -19,6 +19,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.17.0
+  youtube_player_flutter: ^8.1.0
   
 dev_dependencies:
   flutter_test:
