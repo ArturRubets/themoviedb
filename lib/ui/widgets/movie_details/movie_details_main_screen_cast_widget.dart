@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../resources/resources.dart';
+import '../../../domain/api_client/api_client.dart';
+import '../../../library/widgets/inherited/provider.dart';
+import 'movie_details_model.dart';
 
 class MovieDetailsMainScreenCastWidget extends StatelessWidget {
   const MovieDetailsMainScreenCastWidget({Key? key}) : super(key: key);
@@ -22,69 +24,7 @@ class MovieDetailsMainScreenCastWidget extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: SizedBox(
-              height: 240,
-              child: Scrollbar(
-                child: ListView.builder(
-                  itemExtent: 140,
-                  itemCount: 20,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      clipBehavior: Clip.hardEdge,
-                      margin: const EdgeInsets.only(left: 10, right: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border:
-                            Border.all(color: Colors.black.withOpacity(0.2)),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            offset: const Offset(0, 2),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: const [
-                          Image(image: AssetImage(AppImages.tomHolland)),
-                          Padding(
-                            padding: EdgeInsets.only(
-                              left: 10,
-                              top: 10,
-                              right: 10,
-                            ),
-                            child: Text(
-                              'Tom Holland',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 10, top: 5),
-                            child: Text(
-                              'Peter Parker / Spider-Man',
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
+          showCasts(context),
           Padding(
             padding: const EdgeInsets.all(20),
             child: TextButton(
@@ -103,6 +43,89 @@ class MovieDetailsMainScreenCastWidget extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget showCasts(BuildContext context) {
+    final model = NotifierProvider.of<MovieDetailsModel>(context);
+    final cast = model?.movieDetails?.credits.cast.take(4).toList();
+    if (cast == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(left: 10),
+      child: SizedBox(
+        height: 240,
+        child: Scrollbar(
+          child: ListView.builder(
+            itemExtent: 140,
+            itemCount: cast.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              String name = cast[index].name;
+              String character = cast[index].character;
+              String? profilePath = cast[index].profilePath;
+              String? profilePathUrl;
+              if (profilePath != null) {
+                profilePathUrl = ApiClient.imageUrl(profilePath);
+              }
+
+              return Container(
+                clipBehavior: Clip.hardEdge,
+                margin: const EdgeInsets.only(left: 10, right: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.black.withOpacity(0.2)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (profilePathUrl != null)
+                      AspectRatio(
+                        aspectRatio: 8 / 9,
+                        child: Image.network(
+                          profilePathUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        top: 10,
+                        right: 10,
+                      ),
+                      child: Text(
+                        name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        maxLines: 1,
+                        // overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10, top: 5),
+                      child: Text(
+                        character,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }

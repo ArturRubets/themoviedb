@@ -136,11 +136,11 @@ class ApiClient {
     }
   }
 
-    Future<MovieDetails> movieDetails(
-      int movieId, String locale) async {
+  Future<MovieDetails> movieDetails(int movieId, String locale) async {
     var url = _makeUri(
       '/movie/$movieId',
       <String, dynamic>{
+        'append_to_response': 'credits',
         'api_key': _apiKey,
         'language': locale,
       },

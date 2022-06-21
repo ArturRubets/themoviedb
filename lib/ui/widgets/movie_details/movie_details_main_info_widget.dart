@@ -185,9 +185,9 @@ class _ScoreWidget extends StatelessWidget {
                         const Positioned(
                           top: 5,
                           right: -1,
-                          child:  Text(
+                          child: Text(
                             '%',
-                            style:  TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 7,
                               fontWeight: FontWeight.bold,
@@ -345,6 +345,16 @@ class _PeopleWidgets extends StatelessWidget {
       fontSize: 16,
       fontWeight: FontWeight.w400,
     );
+    final model = NotifierProvider.of<MovieDetailsModel>(context);
+    var crew = model?.movieDetails?.credits.crew;
+    if (crew == null) return const SizedBox.shrink();
+    crew.sort((a, b) =>
+        ((b.popularity - a.popularity) * 100).toInt()); // descending popularity
+    crew = crew.take(4).toList(); // 4 of the best popularity
+
+    // Characters
+    // Director
+    // Writer
 
     return Padding(
       padding: const EdgeInsets.only(left: 20),
@@ -357,18 +367,18 @@ class _PeopleWidgets extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Stan Lee', style: nameStyle),
-                    Text('Characters', style: jobTitleStyle),
+                  children: [
+                    Text(crew[0].name, style: nameStyle),
+                    Text(crew[0].department, style: jobTitleStyle),
                   ],
                 ),
               ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Steve Ditko', style: nameStyle),
-                    Text('Characters', style: jobTitleStyle),
+                  children: [
+                    Text(crew[1].name, style: nameStyle),
+                    Text(crew[1].department, style: jobTitleStyle),
                   ],
                 ),
               ),
@@ -382,39 +392,24 @@ class _PeopleWidgets extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Jon Watts', style: nameStyle),
-                    Text('Director', style: jobTitleStyle),
+                  children: [
+                    Text(crew[2].name, style: nameStyle),
+                    Text(crew[2].department, style: jobTitleStyle),
                   ],
                 ),
               ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Erik Sommers', style: nameStyle),
-                    Text('Writer', style: jobTitleStyle),
+                  children: [
+                    Text(crew[3].name, style: nameStyle),
+                    Text(crew[3].department, style: jobTitleStyle),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Chris McKenna', style: nameStyle),
-                    Text('Writer', style: jobTitleStyle),
-                  ],
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
