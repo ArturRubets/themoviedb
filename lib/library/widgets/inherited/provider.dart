@@ -19,11 +19,8 @@ class NotifierProvider<Model extends ChangeNotifier> extends StatefulWidget {
   }
 
   @override
-  // ignore: library_private_types_in_public_api
-  _NotifierProviderState<Model> createState() =>
-      _NotifierProviderState<Model>();
+  State<NotifierProvider> createState() => _NotifierProviderState<Model>();
 }
-
 
 class _NotifierProviderState<Model extends ChangeNotifier>
     extends State<NotifierProvider<Model>> {
@@ -37,7 +34,7 @@ class _NotifierProviderState<Model extends ChangeNotifier>
 
   @override
   Widget build(BuildContext context) {
-    return _InheretedNotifierProvider(
+    return _InheretedNotifierProvider<Model>(
       model: _model,
       child: widget.child,
     );
