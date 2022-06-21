@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../resources/resources.dart';
+import '../../../domain/api_client/api_client.dart';
+import '../../../library/widgets/inherited/provider.dart';
 import '../elements/radial_percent_widget.dart';
+import 'movie_details_model.dart';
 
 class MovieDetailsMainInfoWidget extends StatelessWidget {
   const MovieDetailsMainInfoWidget({Key? key}) : super(key: key);
@@ -38,58 +40,64 @@ class _TopPostersWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var model = NotifierProvider.of<MovieDetailsModel>(context);
+    var backdropPath = model?.movieDetails?.backdropPath;
+    var posterPath = model?.movieDetails?.posterPath;
     return SizedBox(
       width: double.infinity,
-      child: Stack(
-        children: [
-          const Image(image: AssetImage(AppImages.spiderMan1000450)),
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: Container(
-              width: 110,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.4),
-                    offset: const Offset(10, 0),
-                    blurRadius: 5,
-                    spreadRadius: 10,
-                  ),
-                ],
+      child: AspectRatio(
+        aspectRatio: 5 / 3,
+        child: Stack(
+          children: [
+            if (backdropPath != null)
+              Image.network(ApiClient.imageUrl(backdropPath)),
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: Container(
+                width: 110,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.4),
+                      offset: const Offset(10, 0),
+                      blurRadius: 5,
+                      spreadRadius: 10,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Positioned(
-            left: 110,
-            top: 0,
-            bottom: 0,
-            child: Container(
-              width: 40,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    offset: const Offset(10, 0),
-                    blurRadius: 5,
-                    spreadRadius: 0,
-                  ),
-                ],
+            Positioned(
+              left: 110,
+              top: 0,
+              bottom: 0,
+              child: Container(
+                width: 40,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.5),
+                      offset: const Offset(10, 0),
+                      blurRadius: 5,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const Positioned(
-            left: 20,
-            top: 0,
-            bottom: 30,
-            child: Image(
-              image: AssetImage(AppImages.spiderMan220330),
-            ),
-          ),
-        ],
+            if (posterPath != null)
+              Positioned(
+                left: 20,
+                top: 0,
+                bottom: 30,
+                child: Image.network(ApiClient.imageUrl(posterPath)),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -100,19 +108,23 @@ class _MovieNameWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = NotifierProvider.of<MovieDetailsModel>(context);
+    final title = model?.movieDetails?.title;
+    var year = model?.movieDetails?.releaseDate?.year.toString();
+    year = year == null ? '' : ' ($year)';
     return RichText(
       maxLines: 3,
       textAlign: TextAlign.center,
-      text: const TextSpan(
-        text: 'Spider-Man: No Way Home',
-        style: TextStyle(
+      text: TextSpan(
+        text: title,
+        style: const TextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w600,
         ),
         children: [
           TextSpan(
-            text: ' (2021)',
-            style: TextStyle(
+            text: year,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w400,
             ),
@@ -128,6 +140,16 @@ class _ScoreWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = NotifierProvider.of<MovieDetailsModel>(context);
+    final score = model?.movieDetails?.voteAverage;
+
+    double? radialPercentWidget1;
+    int? radialPercentWidget2;
+    if (score != null) {
+      radialPercentWidget1 = score / 10;
+      radialPercentWidget2 = (score * 10).toInt();
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -135,46 +157,47 @@ class _ScoreWidget extends StatelessWidget {
           onPressed: () {},
           child: Row(
             children: [
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: RadialPercentWidget(
-                  percent: 0.72,
-                  fillColor: const Color(0xFF201F20),
-                  lineColor: const Color(0xFF21D07A),
-                  freeColor: const Color(0xFF20452A),
-                  lineWidth: 3,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: const [
-                      Positioned(
-                        left: 2,
-                        top: 5,
-                        child: Text(
-                          '72',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
+              if (radialPercentWidget1 != null && radialPercentWidget2 != null)
+                SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: RadialPercentWidget(
+                    percent: radialPercentWidget1,
+                    fillColor: const Color(0xFF201F20),
+                    lineColor: const Color(0xFF21D07A),
+                    freeColor: const Color(0xFF20452A),
+                    lineWidth: 3,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned(
+                          left: 2,
+                          top: 5,
+                          child: Text(
+                            '$radialPercentWidget2',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                        top: 5,
-                        right: -1,
-                        child: Text(
-                          '%',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 7,
-                            fontWeight: FontWeight.bold,
+                        const Positioned(
+                          top: 5,
+                          right: -1,
+                          child:  Text(
+                            '%',
+                            style:  TextStyle(
+                              color: Colors.white,
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
               const SizedBox(width: 10),
               const Text(
                 'User Score',
@@ -217,16 +240,43 @@ class _SummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: Color.fromRGBO(20, 20, 20, 1),
+    final model = NotifierProvider.of<MovieDetailsModel>(context);
+    if (model == null) return const SizedBox.shrink();
+
+    final texts = <String>[];
+    final releaseDate = model.movieDetails?.releaseDate;
+    if (releaseDate != null) {
+      texts.add(model.stringFromDate(releaseDate));
+    }
+    final productionCountries = model.movieDetails?.productionCountries;
+    if (productionCountries != null && productionCountries.isNotEmpty) {
+      texts.add('(${productionCountries.first.iso})');
+    }
+    texts.add('•');
+    final runtime = model.movieDetails?.runtime;
+    if (runtime != null) {
+      final duration = Duration(minutes: runtime);
+      final hours = duration.inHours;
+      final minutes = runtime - hours * 60;
+      texts.add('${hours}h ${minutes}m');
+    }
+
+    final genres = model.movieDetails?.genres.map((g) => g.name);
+    if (genres != null && genres.isNotEmpty) {
+      texts.add(genres.join(', '));
+    }
+
+    final text = texts.join(' ');
+    return ColoredBox(
+      color: const Color.fromRGBO(20, 20, 20, 1),
       child: Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           vertical: 10,
-          horizontal: 60,
+          horizontal: 40,
         ),
         child: Text(
-          'PG-13, 12/17/2021 (US) • 2h 28m Action, Adventure, Science Fiction',
-          style: TextStyle(
+          text,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w400,
@@ -267,9 +317,11 @@ class _DescriptionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
-      'Peter Parker is unmasked and no longer able to separate his normal life from the high-stakes of being a super-hero. When he asks for help from Doctor Strange the stakes become even more dangerous, forcing him to discover what it truly means to be Spider-Man.',
-      style: TextStyle(
+    final model = NotifierProvider.of<MovieDetailsModel>(context);
+    final overview = model?.movieDetails?.overview ?? '';
+    return Text(
+      overview,
+      style: const TextStyle(
         color: Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.w400,

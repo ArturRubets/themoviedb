@@ -12,7 +12,7 @@ class MovieListModel extends ChangeNotifier {
   final _apiClient = ApiClient();
   final _movies = <Movie>[];
   List<Movie> get movies => List.unmodifiable(_movies);
-  late final DateFormat _dateFormat;
+   DateFormat? _dateFormat;
   String _locale = 'en-GB';
   int _currentPage = 0;
   int _totalPage = 1;
@@ -21,7 +21,7 @@ class MovieListModel extends ChangeNotifier {
   Timer? searchDebounce;
 
   String stringFromDate(DateTime? date) =>
-      date == null ? '' : _dateFormat.format(date);
+      date == null ? '' : _dateFormat!.format(date);
 
   Future<void> setupLocale(BuildContext context) async {
     _locale = Localizations.localeOf(context).toLanguageTag();

@@ -1,7 +1,58 @@
 import 'package:flutter/material.dart';
 
-class NotifierProvider<Model extends ChangeNotifier> extends InheritedNotifier {
+class NotifierProvider<Model extends ChangeNotifier> extends StatefulWidget {
   const NotifierProvider({
+    Key? key,
+    required this.create,
+    required this.child,
+    this.isManagingModel = true,
+  }) : super(key: key);
+
+  final Model Function() create;
+  final Widget child;
+  final bool isManagingModel;
+
+  static Model? of<Model extends ChangeNotifier>(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_InheretedNotifierProvider<Model>>()
+        ?.model;
+  }
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _NotifierProviderState<Model> createState() =>
+      _NotifierProviderState<Model>();
+}
+
+
+class _NotifierProviderState<Model extends ChangeNotifier>
+    extends State<NotifierProvider<Model>> {
+  late final Model _model;
+
+  @override
+  void initState() {
+    super.initState();
+    _model = widget.create();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _InheretedNotifierProvider(
+      model: _model,
+      child: widget.child,
+    );
+  }
+
+  @override
+  void dispose() {
+    if (widget.isManagingModel) _model.dispose();
+    super.dispose();
+  }
+}
+
+class _InheretedNotifierProvider<Model extends ChangeNotifier>
+    extends InheritedNotifier {
+  const _InheretedNotifierProvider({
     Key? key,
     required this.model,
     required Widget child,
@@ -12,12 +63,6 @@ class NotifierProvider<Model extends ChangeNotifier> extends InheritedNotifier {
         );
 
   final Model model;
-
-  static Model? of<Model extends ChangeNotifier>(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<NotifierProvider<Model>>()
-        ?.model;
-  }
 }
 
 class Provider<Model> extends InheritedWidget {

@@ -1,9 +1,9 @@
 import 'dart:convert' as convert;
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import '../entity/movie_details.dart';
 import '../entity/popular_movie_response.dart';
 
 enum ApiClientExceptionType {
@@ -105,13 +105,15 @@ class ApiClient {
           convert.jsonDecode(response.body) as Map<String, dynamic>;
 
       final popularMovieResponse = PopularMovieResponse.fromJson(jsonResponse);
+
       return popularMovieResponse;
     } else {
       throw const ApiClientException(type: ApiClientExceptionType.other);
     }
   }
 
-  Future<PopularMovieResponse> searchMovie(int page, String locale, String query) async {
+  Future<PopularMovieResponse> searchMovie(
+      int page, String locale, String query) async {
     var url = _makeUri(
       '/search/movie',
       <String, dynamic>{
@@ -129,6 +131,28 @@ class ApiClient {
 
       final popularMovieResponse = PopularMovieResponse.fromJson(jsonResponse);
       return popularMovieResponse;
+    } else {
+      throw const ApiClientException(type: ApiClientExceptionType.other);
+    }
+  }
+
+    Future<MovieDetails> movieDetails(
+      int movieId, String locale) async {
+    var url = _makeUri(
+      '/movie/$movieId',
+      <String, dynamic>{
+        'api_key': _apiKey,
+        'language': locale,
+      },
+    );
+
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonResponse =
+          convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+      final movieDetails = MovieDetails.fromJson(jsonResponse);
+      return movieDetails;
     } else {
       throw const ApiClientException(type: ApiClientExceptionType.other);
     }
@@ -167,7 +191,7 @@ class ApiClient {
     final url = _makeUri(
         '/authentication/session/new', <String, dynamic>{'api_key': _apiKey});
 
-    final parameters = jsonEncode(<String, String>{
+    final parameters = convert.jsonEncode(<String, String>{
       'request_token': requestToken,
     });
 
