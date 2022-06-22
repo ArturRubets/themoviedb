@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/data_provider/session_data_provider.dart';
 import '../../../library/widgets/inherited/provider.dart';
+import '../app/my_app_model.dart';
 import '../movie_list/movie_list_model.dart';
 import '../movie_list/movie_list_widget.dart';
 
@@ -36,10 +37,8 @@ class _MainScreenWidgetState extends State<MainScreenWidget> {
         title: const Text('TMDB'),
         actions: [
           IconButton(
-            onPressed: () {
-              SessionDataProvider().deleteSessionId();
-              SessionDataProvider().deleteAccountId();
-            },
+            onPressed: () =>
+                Provider.of<MyAppModel>(context)?.resetSession(context),
             icon: const Icon(Icons.logout),
           ),
         ],

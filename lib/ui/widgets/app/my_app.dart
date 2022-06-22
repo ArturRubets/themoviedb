@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import '../../../library/widgets/inherited/provider.dart';
 import '../../navigation/main_navigation.dart';
 import '../../theme/app_colors.dart';
 import 'my_app_model.dart';
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key, required this.myAppModel}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   static final mainNavigation = MainNavigation();
-  final MyAppModel myAppModel;
 
   @override
   Widget build(BuildContext context) {
+    final myAppModel = Provider.of<MyAppModel>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
         Locale('ru', 'RU'),
       ],
       routes: mainNavigation.routes,
-      initialRoute: mainNavigation.initialRoute(myAppModel.isAuth),
+      initialRoute: mainNavigation.initialRoute(myAppModel?.isAuth == true),
       onGenerateRoute: mainNavigation.onGenerateRoute,
     );
   }

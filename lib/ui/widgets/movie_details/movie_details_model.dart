@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../../../domain/api_client/api_client.dart';
 import '../../../domain/data_provider/session_data_provider.dart';
 import '../../../domain/entity/movie_details.dart';
+import '../../../library/widgets/inherited/provider.dart';
+import '../app/my_app_model.dart';
 
 class MovieDetailsModel extends ChangeNotifier {
   MovieDetailsModel(BuildContext context, {required this.movieId}) {
@@ -40,7 +42,7 @@ class MovieDetailsModel extends ChangeNotifier {
     await loadDetails();
   }
 
-  Future<void> toggleFavorite() async {
+  Future<void> toggleFavorite(BuildContext context) async {
     final sessionId = await _sessionDataProvider.sessionId;
     final accountId = await _sessionDataProvider.accountId;
 
@@ -48,16 +50,22 @@ class MovieDetailsModel extends ChangeNotifier {
 
     final newFavoriteValue = !_isFavorite;
 
-    final response = await _apiClient.markAsFavotite(
-      accountId: accountId,
-      sessionId: sessionId,
-      mediaId: movieId,
-      isFavorite: newFavoriteValue,
-    );
-
-    if (response) {
-      _isFavorite = newFavoriteValue;
-      notifyListeners();
+    try {
+      final response = await _apiClient.markAsFavotite(
+        accountId: accountId,
+        sessionId: sessionId,
+        mediaId: movieId,
+        isFavorite: newFavoriteValue,
+      );
+      if (response) {
+        _isFavorite = newFavoriteValue;
+        notifyListeners();
+      }
+    } on ApiClientException catch (e) {
+      if (e.type == ApiClientExceptionType.sessionExpired) {
+        // ignore: use_build_context_synchronously
+        await Provider.of<MyAppModel>(context)?.resetSession(context);
+      }
     }
   }
 }

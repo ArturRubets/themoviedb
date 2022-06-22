@@ -7,8 +7,9 @@ import '../entity/movie_details.dart';
 import '../entity/popular_movie_response.dart';
 
 enum ApiClientExceptionType {
-  network,
   auth,
+  network,
+  sessionExpired,
   other,
 }
 
@@ -31,8 +32,8 @@ class ApiClient {
   static const _host = 'https://api.themoviedb.org/3';
   static const _apiKey = '03bf18a1588eb1f64c6692e2ed80e646';
   static const _imageUrl = 'https://image.tmdb.org/t/p/w500';
-  static const username = 'Artur786746546';
-  static const password = 'KXZPW!pa6xL5cdM';
+  static const username = '';
+  static const password = '';
 
   static String imageUrl(String path) => _imageUrl + path;
 
@@ -78,20 +79,16 @@ class ApiClient {
       <String, dynamic>{'api_key': _apiKey},
     );
 
-    var response = await http.get(url);
-    if (response.statusCode == 200) {
-      final jsonResponse =
-          convert.jsonDecode(response.body) as Map<String, dynamic>;
+    final response = await http.get(url);
 
-      final requestToken = jsonResponse['request_token'] as String;
+    final jsonResponse =
+        convert.jsonDecode(response.body) as Map<String, dynamic>;
 
-      return requestToken;
-    } else if (response.statusCode == 401) {
-      throw const ApiClientException(
-          type: ApiClientExceptionType.other); // Ошибка неверного токена.
-    } else {
-      throw const ApiClientException(type: ApiClientExceptionType.other);
-    }
+    _validateResponse(response.statusCode, jsonResponse);
+
+    final requestToken = jsonResponse['request_token'] as String;
+
+    return requestToken;
   }
 
   Future<int?> getAccountId(String sessionId) async {
@@ -104,17 +101,15 @@ class ApiClient {
     );
 
     var response = await http.get(url);
-    if (response.statusCode == 200) {
-      final jsonResponse =
-          convert.jsonDecode(response.body) as Map<String, dynamic>;
-      final result = jsonResponse['id'] as int?;
-      return result;
-    } else if (response.statusCode == 401) {
-      throw const ApiClientException(
-          type: ApiClientExceptionType.other); // Ошибка неверного токена.
-    } else {
-      throw const ApiClientException(type: ApiClientExceptionType.other);
-    }
+
+    final jsonResponse =
+        convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+    _validateResponse(response.statusCode, jsonResponse);
+
+    final result = jsonResponse['id'] as int?;
+
+    return result;
   }
 
   Future<PopularMovieResponse> popularMovie(int page, String locale) async {
@@ -128,16 +123,15 @@ class ApiClient {
     );
 
     var response = await http.get(url);
-    if (response.statusCode == 200) {
-      final jsonResponse =
-          convert.jsonDecode(response.body) as Map<String, dynamic>;
 
-      final popularMovieResponse = PopularMovieResponse.fromJson(jsonResponse);
+    final jsonResponse =
+        convert.jsonDecode(response.body) as Map<String, dynamic>;
 
-      return popularMovieResponse;
-    } else {
-      throw const ApiClientException(type: ApiClientExceptionType.other);
-    }
+    _validateResponse(response.statusCode, jsonResponse);
+
+    final popularMovieResponse = PopularMovieResponse.fromJson(jsonResponse);
+
+    return popularMovieResponse;
   }
 
   Future<PopularMovieResponse> searchMovie(
@@ -153,15 +147,15 @@ class ApiClient {
     );
 
     var response = await http.get(url);
-    if (response.statusCode == 200) {
-      final jsonResponse =
-          convert.jsonDecode(response.body) as Map<String, dynamic>;
 
-      final popularMovieResponse = PopularMovieResponse.fromJson(jsonResponse);
-      return popularMovieResponse;
-    } else {
-      throw const ApiClientException(type: ApiClientExceptionType.other);
-    }
+    final jsonResponse =
+        convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+    _validateResponse(response.statusCode, jsonResponse);
+
+    final popularMovieResponse = PopularMovieResponse.fromJson(jsonResponse);
+
+    return popularMovieResponse;
   }
 
   Future<MovieDetails> movieDetails(int movieId, String locale) async {
@@ -175,15 +169,15 @@ class ApiClient {
     );
 
     var response = await http.get(url);
-    if (response.statusCode == 200) {
-      final jsonResponse =
-          convert.jsonDecode(response.body) as Map<String, dynamic>;
 
-      final movieDetails = MovieDetails.fromJson(jsonResponse);
-      return movieDetails;
-    } else {
-      throw const ApiClientException(type: ApiClientExceptionType.other);
-    }
+    final jsonResponse =
+        convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+    _validateResponse(response.statusCode, jsonResponse);
+
+    final movieDetails = MovieDetails.fromJson(jsonResponse);
+
+    return movieDetails;
   }
 
   Future<bool?> isFavorite(int movieId, String sessionId) async {
@@ -196,14 +190,15 @@ class ApiClient {
     );
 
     var response = await http.get(url);
-    if (response.statusCode == 200) {
-      final jsonResponse =
-          convert.jsonDecode(response.body) as Map<String, dynamic>;
-      final result = jsonResponse['favorite'] as bool?;
-      return result;
-    } else {
-      throw const ApiClientException(type: ApiClientExceptionType.other);
-    }
+
+    final jsonResponse =
+        convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+    _validateResponse(response.statusCode, jsonResponse);
+
+    final result = jsonResponse['favorite'] as bool?;
+
+    return result;
   }
 
   Future<bool> markAsFavotite({
@@ -237,15 +232,11 @@ class ApiClient {
       body: parameters,
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      // success
-      return true;
-    } else if (response.statusCode == 401) {
-      throw const ApiClientException(
-          type: ApiClientExceptionType.auth); // Ошибка авторизации.
-    } else {
-      throw const ApiClientException(type: ApiClientExceptionType.other);
-    }
+    final jsonBody = convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+    _validateResponse(response.statusCode, jsonBody);
+
+    return true;
   }
 
   Future<String> _validateUser({
@@ -264,17 +255,14 @@ class ApiClient {
 
     var response = await http.post(url, body: parameters);
 
-    if (response.statusCode == 200) {
-      final jsonResponse =
-          convert.jsonDecode(response.body) as Map<String, dynamic>;
-      final requestToken = jsonResponse['request_token'] as String;
-      return requestToken;
-    } else if (response.statusCode == 401) {
-      throw const ApiClientException(
-          type: ApiClientExceptionType.auth); // Ошибка авторизации.
-    } else {
-      throw const ApiClientException(type: ApiClientExceptionType.other);
-    }
+    final jsonResponse =
+        convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+    _validateResponse(response.statusCode, jsonResponse);
+
+    final requestTokenResponse = jsonResponse['request_token'] as String;
+
+    return requestTokenResponse;
   }
 
   Future<String> _makeSession({required String requestToken}) async {
@@ -295,14 +283,26 @@ class ApiClient {
       body: parameters,
     );
 
-    if (response.statusCode == 200) {
-      final jsonResponse =
-          convert.jsonDecode(response.body) as Map<String, dynamic>;
-      final sessionId = jsonResponse['session_id'] as String;
-      return sessionId;
-    } else if (response.statusCode == 401) {
-      throw const ApiClientException(type: ApiClientExceptionType.other);
-    } else {
+    final jsonResponse =
+        convert.jsonDecode(response.body) as Map<String, dynamic>;
+
+    _validateResponse(response.statusCode, jsonResponse);
+
+    final sessionId = jsonResponse['session_id'] as String;
+
+    return sessionId;
+  }
+
+  void _validateResponse(int statusCode, Map<String, dynamic> jsonBody) {
+    if (statusCode == 401) {
+      final dynamic status = jsonBody['status_code'];
+      final code = status is int ? status : 0;
+      if (code == 30) {
+        throw const ApiClientException(type: ApiClientExceptionType.auth);
+      }
+      if (code == 3) {
+        throw const ApiClientException(type: ApiClientExceptionType.sessionExpired);
+      }
       throw const ApiClientException(type: ApiClientExceptionType.other);
     }
   }
