@@ -39,7 +39,14 @@ class AuthModel extends ChangeNotifier {
         password: password,
       );
 
-      await _sessionDataProvider.set(sessionId: sessionId);
+      final accountId = await _apiClient.getAccountId(sessionId);
+
+      if (accountId == null) {
+        throw const ApiClientException(type: ApiClientExceptionType.other);
+      }
+
+      await _sessionDataProvider.setSessionId(sessionId: sessionId);
+      await _sessionDataProvider.setAccountId(accountId: accountId);
 
       await navigator.pushReplacementNamed(MainNavigationRouteNames.mainScreen);
     } on ApiClientException catch (e) {

@@ -41,9 +41,12 @@ class _TopPostersWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var model = NotifierProvider.of<MovieDetailsModel>(context);
-    var backdropPath = model?.movieDetails?.backdropPath;
-    var posterPath = model?.movieDetails?.posterPath;
+    final model = NotifierProvider.of<MovieDetailsModel>(context);
+    final backdropPath = model?.movieDetails?.backdropPath;
+    final posterPath = model?.movieDetails?.posterPath;
+    final isFavorite = model?.isFavorite;
+    final iconFavorite =
+        isFavorite == true ? Icons.favorite : Icons.favorite_border;
     return SizedBox(
       width: double.infinity,
       child: AspectRatio(
@@ -97,6 +100,20 @@ class _TopPostersWidget extends StatelessWidget {
                 bottom: 30,
                 child: Image.network(ApiClient.imageUrl(posterPath)),
               ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Material(
+                shape: const CircleBorder(),
+                clipBehavior: Clip.hardEdge,
+                color: Colors.transparent,
+                child: IconButton(
+                  color: Colors.red,
+                  icon: Icon(iconFavorite),
+                  onPressed: () => model?.toggleFavorite(),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -139,8 +156,10 @@ class _MovieNameWidget extends StatelessWidget {
 class _ScoreWidget extends StatelessWidget {
   const _ScoreWidget({Key? key}) : super(key: key);
 
-  void navigateToTrailer(BuildContext context, String trailerKey) => Navigator.of(context)
-      .pushNamed(MainNavigationRouteNames.movieTrailerWidget, arguments: trailerKey);
+  void navigateToTrailer(BuildContext context, String trailerKey) =>
+      Navigator.of(context).pushNamed(
+          MainNavigationRouteNames.movieTrailerWidget,
+          arguments: trailerKey);
 
   @override
   Widget build(BuildContext context) {

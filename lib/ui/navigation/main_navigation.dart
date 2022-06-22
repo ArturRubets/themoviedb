@@ -39,8 +39,7 @@ class MainNavigation {
         final movieId = arguments is int ? arguments : 0;
         return MaterialPageRoute(
           builder: (context) => NotifierProvider(
-            create: () =>
-                MovieDetailsModel(movieId: movieId)..setupLocale(context),
+            create: () => MovieDetailsModel(context, movieId: movieId),
             child: const MovieDetailsWidget(),
           ),
         );

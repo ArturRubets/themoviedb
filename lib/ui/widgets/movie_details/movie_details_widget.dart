@@ -15,8 +15,19 @@ class MovieDetailsWidget extends StatefulWidget {
 class _MovieDetailsWidgetState extends State<MovieDetailsWidget> {
   @override
   Widget build(BuildContext context) {
-    var model = NotifierProvider.of<MovieDetailsModel>(context);
-    var title = model?.movieDetails?.title;
+    final model = NotifierProvider.of<MovieDetailsModel>(context);
+    final title = model?.movieDetails?.title;
+
+    const circularProgressIndicator = Center(
+      child: CircularProgressIndicator(),
+    );
+
+    final listView = ListView(
+      children: const [
+        MovieDetailsMainInfoWidget(),
+        MovieDetailsMainScreenCastWidget(),
+      ],
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -24,12 +35,8 @@ class _MovieDetailsWidgetState extends State<MovieDetailsWidget> {
       ),
       body: ColoredBox(
         color: const Color.fromRGBO(24, 23, 27, 1),
-        child: ListView(
-          children: const [
-            MovieDetailsMainInfoWidget(),
-            MovieDetailsMainScreenCastWidget(),
-          ],
-        ),
+        child:
+            model?.movieDetails == null ? circularProgressIndicator : listView,
       ),
     );
   }

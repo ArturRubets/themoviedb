@@ -12,6 +12,11 @@ enum ApiClientExceptionType {
   other,
 }
 
+enum MediaType {
+  movie,
+  tv,
+}
+
 class ApiClientException implements Exception {
   const ApiClientException({
     required this.type,
@@ -89,6 +94,29 @@ class ApiClient {
     }
   }
 
+  Future<int?> getAccountId(String sessionId) async {
+    final url = _makeUri(
+      '/account',
+      <String, dynamic>{
+        'api_key': _apiKey,
+        'session_id': sessionId,
+      },
+    );
+
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonResponse =
+          convert.jsonDecode(response.body) as Map<String, dynamic>;
+      final result = jsonResponse['id'] as int?;
+      return result;
+    } else if (response.statusCode == 401) {
+      throw const ApiClientException(
+          type: ApiClientExceptionType.other); // Ошибка неверного токена.
+    } else {
+      throw const ApiClientException(type: ApiClientExceptionType.other);
+    }
+  }
+
   Future<PopularMovieResponse> popularMovie(int page, String locale) async {
     var url = _makeUri(
       '/movie/popular',
@@ -153,6 +181,68 @@ class ApiClient {
 
       final movieDetails = MovieDetails.fromJson(jsonResponse);
       return movieDetails;
+    } else {
+      throw const ApiClientException(type: ApiClientExceptionType.other);
+    }
+  }
+
+  Future<bool?> isFavorite(int movieId, String sessionId) async {
+    var url = _makeUri(
+      '/movie/$movieId/account_states',
+      <String, dynamic>{
+        'session_id': sessionId,
+        'api_key': _apiKey,
+      },
+    );
+
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonResponse =
+          convert.jsonDecode(response.body) as Map<String, dynamic>;
+      final result = jsonResponse['favorite'] as bool?;
+      return result;
+    } else {
+      throw const ApiClientException(type: ApiClientExceptionType.other);
+    }
+  }
+
+  Future<bool> markAsFavotite({
+    required int accountId,
+    required String sessionId,
+    MediaType mediaType = MediaType.movie,
+    required int mediaId,
+    required bool isFavorite,
+  }) async {
+    final url = _makeUri(
+      '/account/$accountId/favorite',
+      <String, dynamic>{
+        'api_key': _apiKey,
+        'session_id': sessionId,
+      },
+    );
+
+    final parameters = convert.json.encode(<String, dynamic>{
+      'media_type': mediaType.name,
+      'media_id': mediaId,
+      'favorite': isFavorite,
+    });
+
+    final headers = <String, String>{
+      HttpHeaders.contentTypeHeader: ContentType.json.toString()
+    };
+
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: parameters,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // success
+      return true;
+    } else if (response.statusCode == 401) {
+      throw const ApiClientException(
+          type: ApiClientExceptionType.auth); // Ошибка авторизации.
     } else {
       throw const ApiClientException(type: ApiClientExceptionType.other);
     }
