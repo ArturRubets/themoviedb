@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/api_client/api_client.dart';
-import '../../../domain/data_provider/session_data_provider.dart';
 import '../../../library/widgets/inherited/provider.dart';
 import '../../navigation/main_navigation.dart';
 import '../app/my_app_model.dart';
 
 class AuthModel extends ChangeNotifier {
   final _apiClient = ApiClient();
-  final _sessionDataProvider = SessionDataProvider();
 
   final loginTextController = TextEditingController(text: ApiClient.username);
 

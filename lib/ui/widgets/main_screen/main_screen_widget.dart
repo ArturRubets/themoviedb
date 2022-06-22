@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/data_provider/session_data_provider.dart';
 import '../../../library/widgets/inherited/provider.dart';
 import '../app/my_app_model.dart';
 import '../movie_list/movie_list_model.dart';
