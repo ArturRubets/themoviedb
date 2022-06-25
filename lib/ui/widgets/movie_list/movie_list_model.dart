@@ -9,10 +9,10 @@ import '../../../domain/entity/popular_movie_response.dart';
 import '../../navigation/main_navigation.dart';
 
 class MovieListModel extends ChangeNotifier {
-  final _apiClient = ApiClient();
+  final _movieApiClient = MovieApiClient();
   final _movies = <Movie>[];
   List<Movie> get movies => List.unmodifiable(_movies);
-   DateFormat? _dateFormat;
+  DateFormat? _dateFormat;
   String _locale = 'en-GB';
   int _currentPage = 0;
   int _totalPage = 1;
@@ -39,9 +39,9 @@ class MovieListModel extends ChangeNotifier {
   Future<PopularMovieResponse> _downloadType(
       int nextPage, String locale) async {
     if (_searchQuery == null) {
-      return await _apiClient.popularMovie(nextPage, _locale);
+      return await _movieApiClient.popularMovie(nextPage, _locale);
     } else {
-      return await _apiClient.searchMovie(nextPage, locale, _searchQuery!);
+      return await _movieApiClient.searchMovie(nextPage, locale, _searchQuery!);
     }
   }
 

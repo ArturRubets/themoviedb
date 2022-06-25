@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/api_client/account_api_client.dart';
 import '../../../domain/api_client/api_client.dart';
+import '../../../domain/api_client/api_client_exception.dart';
+import '../../../domain/api_client/auth_api_client.dart';
 import '../../../library/widgets/inherited/provider.dart';
 import '../../navigation/main_navigation.dart';
 import '../app/my_app_model.dart';
 
 class AuthModel extends ChangeNotifier {
-  final _apiClient = ApiClient();
+  final _accountApiClient = AccountApiClient();
+  final _authApiClient = AuthApiClient();
 
-  final loginTextController = TextEditingController(text: ApiClient.username);
+  final loginTextController =
+      TextEditingController(text: MovieApiClient.username);
 
   final passwordTextController =
-      TextEditingController(text: ApiClient.password);
+      TextEditingController(text: MovieApiClient.password);
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -34,12 +39,12 @@ class AuthModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final sessionId = await _apiClient.auth(
+      final sessionId = await _authApiClient.auth(
         username: login,
         password: password,
       );
 
-      final accountId = await _apiClient.getAccountId(sessionId);
+      final accountId = await _accountApiClient.getAccountId(sessionId);
 
       if (accountId == null) {
         throw const ApiClientException(type: ApiClientExceptionType.other);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/api_client/api_client.dart';
+import '../../../domain/api_client/image_downloader.dart';
 import '../../../library/widgets/inherited/provider.dart';
 import '../../navigation/main_navigation.dart';
 import '../elements/radial_percent_widget.dart';
@@ -54,7 +54,7 @@ class _TopPostersWidget extends StatelessWidget {
         child: Stack(
           children: [
             if (backdropPath != null)
-              Image.network(ApiClient.imageUrl(backdropPath)),
+              Image.network(ImageDownloader.imageUrl(backdropPath)),
             Positioned(
               left: 0,
               top: 0,
@@ -98,7 +98,7 @@ class _TopPostersWidget extends StatelessWidget {
                 left: 20,
                 top: 0,
                 bottom: 30,
-                child: Image.network(ApiClient.imageUrl(posterPath)),
+                child: Image.network(ImageDownloader.imageUrl(posterPath)),
               ),
             Positioned(
               top: 0,

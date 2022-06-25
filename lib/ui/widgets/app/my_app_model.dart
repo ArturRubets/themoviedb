@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/data_provider/session_data_provider.dart';
 import '../../navigation/main_navigation.dart';
 
-class MyAppModel {
+class MyAppModel extends ChangeNotifier {
   final _sessionDataProvider = SessionDataProvider();
   bool isAuth = false;
 

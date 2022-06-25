@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/api_client/api_client.dart';
+import '../../../domain/api_client/image_downloader.dart';
 import '../../../library/widgets/inherited/provider.dart';
 import 'movie_details_model.dart';
 
@@ -66,7 +66,7 @@ class MovieDetailsMainScreenCastWidget extends StatelessWidget {
               String? profilePath = cast[index].profilePath;
               String? profilePathUrl;
               if (profilePath != null) {
-                profilePathUrl = ApiClient.imageUrl(profilePath);
+                profilePathUrl = ImageDownloader.imageUrl(profilePath);
               }
 
               return Container(
