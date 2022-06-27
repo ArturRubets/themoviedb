@@ -8,7 +8,7 @@ import '../../../library/widgets/inherited/provider.dart';
 import '../../navigation/main_navigation.dart';
 import '../app/my_app_model.dart';
 
-class AuthModel extends ChangeNotifier {
+class AuthViewModel extends ChangeNotifier {
   final _accountApiClient = AccountApiClient();
   final _authApiClient = AuthApiClient();
 

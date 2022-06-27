@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/factories/screen_factory.dart';
 import '../../../library/widgets/inherited/provider.dart';
 import '../app/my_app_model.dart';
-import '../movie_list/movie_list_model.dart';
-import '../movie_list/movie_list_widget.dart';
 
 class MainScreenWidget extends StatefulWidget {
   const MainScreenWidget({Key? key}) : super(key: key);
@@ -14,13 +13,7 @@ class MainScreenWidget extends StatefulWidget {
 
 class _MainScreenWidgetState extends State<MainScreenWidget> {
   int _selectedTab = 0;
-  final _movieListModel = MovieListModel();
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _movieListModel.setupLocale(context);
-  }
+  final _screenFactory = ScreenFactory();
 
   void onSelectTab(int index) {
     if (_selectedTab == index) return;
@@ -45,13 +38,9 @@ class _MainScreenWidgetState extends State<MainScreenWidget> {
       body: IndexedStack(
         index: _selectedTab,
         children: [
-          const Text('News'),
-          NotifierProvider(
-            create: () => _movieListModel,
-            isManagingModel: false,
-            child: const MovieListWidget(),
-          ),
-          const Text('Series'),
+          _screenFactory.makeNewsList(),
+          _screenFactory.makeMovieList(),
+          _screenFactory.makeTVShowList(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

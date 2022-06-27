@@ -86,7 +86,7 @@ class FormWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<AuthModel>(context);
+    final model = NotifierProvider.of<AuthViewModel>(context);
 
     const textStyle = TextStyle(
       fontSize: 16,
@@ -142,7 +142,7 @@ class _AuthButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<AuthModel>(context);
+    final model = NotifierProvider.of<AuthViewModel>(context);
 
     final onPressed =
         model?.canStartAuth == true ? () => model?.auth(context) : null;
@@ -186,7 +186,7 @@ class _ErrorMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<AuthModel>(context);
+    final model = NotifierProvider.of<AuthViewModel>(context);
     final errorMessage = model?.errorMessage;
     if (errorMessage != null) {
       return Padding(

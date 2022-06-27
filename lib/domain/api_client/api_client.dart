@@ -13,11 +13,11 @@ class MovieApiClient {
   static const username = '';
   static const password = '';
 
-  Future<PopularMovieResponse> popularMovie(int page, String locale) async {
+  Future<PopularMovieResponse> popularMovie(int page, String locale, String apiKey) async {
     var url = _networkClient.makeUri(
       '/movie/popular',
       <String, dynamic>{
-        'api_key': Configuration.apiKey,
+        'api_key': apiKey,
         'language': locale,
         'page': page.toString(),
       },
@@ -36,11 +36,11 @@ class MovieApiClient {
   }
 
   Future<PopularMovieResponse> searchMovie(
-      int page, String locale, String query) async {
+      int page, String locale, String query, String apiKey) async {
     var url = _networkClient.makeUri(
       '/search/movie',
       <String, dynamic>{
-        'api_key': Configuration.apiKey,
+        'api_key': apiKey,
         'language': locale,
         'page': page.toString(),
         'query': query,
