@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../domain/factories/screen_factory.dart';
-import '../../../library/widgets/inherited/provider.dart';
 import '../app/my_app_model.dart';
 
 class MainScreenWidget extends StatefulWidget {
@@ -29,8 +29,7 @@ class _MainScreenWidgetState extends State<MainScreenWidget> {
         title: const Text('TMDB'),
         actions: [
           IconButton(
-            onPressed: () =>
-                Provider.of<MyAppModel>(context)?.resetSession(context),
+            onPressed: () => context.read<MyAppModel>().resetSession(context),
             icon: const Icon(Icons.logout),
           ),
         ],

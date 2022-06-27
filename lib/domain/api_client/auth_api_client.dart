@@ -10,7 +10,7 @@ import 'network_client.dart';
 class AuthApiClient {
   final _networkClient = NetworkClient();
 
-  Future<String> auth({
+  Future<String?> auth({
     required String username,
     required String password,
   }) async {
@@ -84,7 +84,7 @@ class AuthApiClient {
     return requestTokenResponse;
   }
 
-  Future<String> _makeSession({required String requestToken}) async {
+  Future<String?> _makeSession({required String requestToken}) async {
     final url = _networkClient.makeUri('/authentication/session/new',
         <String, dynamic>{'api_key': Configuration.apiKey});
 
@@ -107,7 +107,7 @@ class AuthApiClient {
 
     _networkClient.validateResponse(response.statusCode, jsonResponse);
 
-    final sessionId = jsonResponse['session_id'] as String;
+    final sessionId = jsonResponse['session_id'] as String?;
 
     return sessionId;
   }

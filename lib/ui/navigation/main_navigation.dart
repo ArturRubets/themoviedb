@@ -40,4 +40,11 @@ class MainNavigation {
         );
     }
   }
+
+  static Future<void> resetNavigation(BuildContext context) async {
+    await Navigator.of(context).pushNamedAndRemoveUntil(
+      MainNavigationRouteNames.loaderScreen,
+      (route) => false,
+    );
+  }
 }

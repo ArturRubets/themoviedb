@@ -1,18 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../../library/widgets/inherited/provider.dart';
 import '../../theme/app_button_style.dart';
 import 'auth_model.dart';
 
-class AuthWidget extends StatefulWidget {
+class AuthWidget extends StatelessWidget {
   const AuthWidget({Key? key}) : super(key: key);
 
-  @override
-  State<AuthWidget> createState() => _AuthWidgetState();
-}
-
-class _AuthWidgetState extends State<AuthWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,7 +81,7 @@ class FormWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<AuthViewModel>(context);
+    final model = context.read<AuthViewModel>();
 
     const textStyle = TextStyle(
       fontSize: 16,
@@ -110,7 +105,7 @@ class FormWidget extends StatelessWidget {
         const SizedBox(height: 5),
         TextField(
           decoration: textDecoration,
-          controller: model?.loginTextController,
+          controller: model.loginTextController,
         ),
         const SizedBox(height: 20),
         const Text('Password', style: textStyle),
@@ -118,7 +113,7 @@ class FormWidget extends StatelessWidget {
         TextField(
           decoration: textDecoration,
           obscureText: true,
-          controller: model?.passwordTextController,
+          controller: model.passwordTextController,
         ),
         const SizedBox(height: 25),
         Row(
@@ -142,10 +137,9 @@ class _AuthButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<AuthViewModel>(context);
+    final model = context.watch<AuthViewModel>();
 
-    final onPressed =
-        model?.canStartAuth == true ? () => model?.auth(context) : null;
+    final onPressed = model.canStartAuth ? () => model.auth(context) : null;
 
     final content = onPressed != null
         ? const Text('Login')
@@ -186,8 +180,9 @@ class _ErrorMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<AuthViewModel>(context);
-    final errorMessage = model?.errorMessage;
+    final errorMessage =
+        context.select<AuthViewModel, String?>((value) => value.errorMessage);
+
     if (errorMessage != null) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 20),

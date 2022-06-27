@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/api_client/account_api_client.dart';
 import '../../../domain/api_client/api_client.dart';
 import '../../../domain/api_client/api_client_exception.dart';
-import '../../../domain/api_client/auth_api_client.dart';
-import '../../../library/widgets/inherited/provider.dart';
+import '../../../domain/services/auth_service.dart';
 import '../../navigation/main_navigation.dart';
-import '../app/my_app_model.dart';
 
 class AuthViewModel extends ChangeNotifier {
-  final _accountApiClient = AccountApiClient();
-  final _authApiClient = AuthApiClient();
+  final _authService = AuthService();
 
   final loginTextController =
       TextEditingController(text: MovieApiClient.username);
@@ -24,53 +20,59 @@ class AuthViewModel extends ChangeNotifier {
   bool _isAuthProgress = false;
   bool get canStartAuth => !_isAuthProgress;
 
-  Future<void> auth(BuildContext context) async {
-    var navigator = Navigator.of(context);
+  bool isValidLoginAndPassword(String login, String password) =>
+      login.isNotEmpty && password.isNotEmpty;
 
-    final login = loginTextController.text;
-    final password = passwordTextController.text;
-    if (login.isEmpty || password.isEmpty) {
-      _errorMessage = 'Заполните логин и пароль';
-      notifyListeners();
-      return;
-    }
-    _errorMessage = null;
-    _isAuthProgress = true;
-    notifyListeners();
-
+  Future<String?> _login(String login, String password) async {
     try {
-      final sessionId = await _authApiClient.auth(
-        username: login,
-        password: password,
-      );
-
-      final accountId = await _accountApiClient.getAccountId(sessionId);
-
-      if (accountId == null) {
-        throw const ApiClientException(type: ApiClientExceptionType.other);
-      }
-
-      // ignore: use_build_context_synchronously
-      await Provider.of<MyAppModel>(context)?.addSession(sessionId, accountId);
-
-      await navigator.pushReplacementNamed(MainNavigationRouteNames.mainScreen);
+      await _authService.login(login, password);
     } on ApiClientException catch (e) {
       switch (e.type) {
         case ApiClientExceptionType.auth:
-          _errorMessage = 'Неправильный логин или пароль';
-          break;
+          return 'Неправильный логин или пароль';
         case ApiClientExceptionType.network:
-          _errorMessage = 'Сервер недоступен проверьте подключение к интернету';
-          break;
+          return 'Сервер недоступен проверьте подключение к интернету';
         case ApiClientExceptionType.sessionExpired:
-          _errorMessage = 'Истек токен сессии';
-          break;
+          return 'Истек токен сессии';
         case ApiClientExceptionType.other:
-          _errorMessage = 'Что-то пошло не так';
-          break;
+          return 'Что-то пошло не так';
       }
+    } catch (_) {
+      return 'Неизвестная ошибка, повторите попытку позже';
     }
-    _isAuthProgress = false;
+    return null;
+  }
+
+  void _updateState(
+      {required String? errorMessage, required bool isAuthProgress}) {
+    _errorMessage = errorMessage;
+    _isAuthProgress = isAuthProgress;
     notifyListeners();
+  }
+
+  Future<void> auth(BuildContext context) async {
+    final login = loginTextController.text;
+    final password = passwordTextController.text;
+
+    final validLoginAndPassword = isValidLoginAndPassword(login, password);
+
+    if (validLoginAndPassword) {
+      _updateState(errorMessage: null, isAuthProgress: true);
+    } else {
+      _updateState(
+        errorMessage: 'Заполните логин и пароль',
+        isAuthProgress: false,
+      );
+      return;
+    }
+
+    final errorMessageResponse = await _login(login, password);
+
+    if (errorMessageResponse == null) {
+      // ignore: use_build_context_synchronously
+      await MainNavigation.resetNavigation(context);
+    } else {
+      _updateState(errorMessage: errorMessageResponse, isAuthProgress: false);
+    }
   }
 }
