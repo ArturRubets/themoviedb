@@ -1,7 +1,9 @@
+// ignore_for_file: avoid_types_on_closure_parameters
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../domain/api_client/image_downloader.dart';
-import '../../../library/widgets/inherited/provider.dart';
 import '../../navigation/main_navigation.dart';
 import '../elements/radial_percent_widget.dart';
 import 'movie_details_model.dart';
@@ -24,10 +26,7 @@ class MovieDetailsMainInfoWidget extends StatelessWidget {
           padding: EdgeInsets.all(10),
           child: _OverViewWidget(),
         ),
-        Padding(
-          padding: EdgeInsets.all(10),
-          child: _DescriptionWidget(),
-        ),
+        _DescriptionWidget(),
         SizedBox(height: 30),
         _PeopleWidgets(),
         SizedBox(height: 20),
@@ -41,12 +40,15 @@ class _TopPostersWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<MovieDetailsModel>(context);
-    final backdropPath = model?.movieDetails?.backdropPath;
-    final posterPath = model?.movieDetails?.posterPath;
-    final isFavorite = model?.isFavorite;
-    final iconFavorite =
-        isFavorite == true ? Icons.favorite : Icons.favorite_border;
+    final model = context.read<MovieDetailsModel>();
+    final poster =
+        context.select((MovieDetailsModel value) => value.data.poster);
+
+    final backdropPath = poster.backdropPath;
+    final posterPath = poster.posterPath;
+    final iconFavorite = context
+        .select((MovieDetailsModel value) => value.data.poster.iconFavorite);
+
     return SizedBox(
       width: double.infinity,
       child: AspectRatio(
@@ -110,7 +112,7 @@ class _TopPostersWidget extends StatelessWidget {
                 child: IconButton(
                   color: Colors.red,
                   icon: Icon(iconFavorite),
-                  onPressed: () => model?.toggleFavorite(context),
+                  onPressed: () => model.toggleFavorite(context),
                 ),
               ),
             ),
@@ -126,10 +128,10 @@ class _MovieNameWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<MovieDetailsModel>(context);
-    final title = model?.movieDetails?.title;
-    var year = model?.movieDetails?.releaseDate?.year.toString();
-    year = year == null ? '' : ' ($year)';
+    final data = context.read<MovieDetailsModel>().data;
+    final title = data.title;
+    final year = data.year;
+
     return RichText(
       maxLines: 3,
       textAlign: TextAlign.center,
@@ -163,21 +165,10 @@ class _ScoreWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<MovieDetailsModel>(context);
-    final score = model?.movieDetails?.voteAverage;
-
-    double? radialPercentWidget1;
-    int? radialPercentWidget2;
-    if (score != null) {
-      radialPercentWidget1 = score / 10;
-      radialPercentWidget2 = (score * 10).toInt();
-    }
-
-    final videos = model?.movieDetails?.videos.results
-        .where((video) => video.type == 'Trailer' && video.site == 'YouTube')
-        .toList();
-
-    final trailerKey = videos?.isNotEmpty == true ? videos?.first.key : null;
+    final score = context.read<MovieDetailsModel>().data.score;
+    final scoreForLabel = score.scoreForLabel;
+    final scoreForRadialWidget = score.scoreForRadialWidget;
+    final trailerKey = context.read<MovieDetailsModel>().data.trailerKey;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -186,12 +177,12 @@ class _ScoreWidget extends StatelessWidget {
           onPressed: () {},
           child: Row(
             children: [
-              if (radialPercentWidget1 != null && radialPercentWidget2 != null)
+              if (scoreForLabel != null && scoreForRadialWidget != null)
                 SizedBox(
                   width: 50,
                   height: 50,
                   child: RadialPercentWidget(
-                    percent: radialPercentWidget1,
+                    percent: scoreForRadialWidget,
                     fillColor: const Color(0xFF201F20),
                     lineColor: const Color(0xFF21D07A),
                     freeColor: const Color(0xFF20452A),
@@ -203,7 +194,7 @@ class _ScoreWidget extends StatelessWidget {
                           left: 2,
                           top: 5,
                           child: Text(
-                            '$radialPercentWidget2',
+                            scoreForLabel,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -270,33 +261,8 @@ class _SummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<MovieDetailsModel>(context);
-    if (model == null) return const SizedBox.shrink();
+    final summary = context.read<MovieDetailsModel>().data.summary;
 
-    final texts = <String>[];
-    final releaseDate = model.movieDetails?.releaseDate;
-    if (releaseDate != null) {
-      texts.add(model.stringFromDate(releaseDate));
-    }
-    final productionCountries = model.movieDetails?.productionCountries;
-    if (productionCountries != null && productionCountries.isNotEmpty) {
-      texts.add('(${productionCountries.first.iso})');
-    }
-    texts.add('•');
-    final runtime = model.movieDetails?.runtime;
-    if (runtime != null) {
-      final duration = Duration(minutes: runtime);
-      final hours = duration.inHours;
-      final minutes = runtime - hours * 60;
-      texts.add('${hours}h ${minutes}m');
-    }
-
-    final genres = model.movieDetails?.genres.map((g) => g.name);
-    if (genres != null && genres.isNotEmpty) {
-      texts.add(genres.join(', '));
-    }
-
-    final text = texts.join(' ');
     return ColoredBox(
       color: const Color.fromRGBO(20, 20, 20, 1),
       child: Padding(
@@ -305,7 +271,7 @@ class _SummaryWidget extends StatelessWidget {
           horizontal: 40,
         ),
         child: Text(
-          text,
+          summary,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -347,14 +313,17 @@ class _DescriptionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.of<MovieDetailsModel>(context);
-    final overview = model?.movieDetails?.overview ?? '';
-    return Text(
-      overview,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
+    final overview = context.read<MovieDetailsModel>().data.overview;
+    if (overview == null || overview.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Text(
+        overview,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+        ),
       ),
     );
   }
@@ -375,72 +344,48 @@ class _PeopleWidgets extends StatelessWidget {
       fontSize: 16,
       fontWeight: FontWeight.w400,
     );
-    final model = NotifierProvider.of<MovieDetailsModel>(context);
-    var crew = model?.movieDetails?.credits.crew;
-    if (crew == null) return const SizedBox.shrink();
-    crew.sort((a, b) =>
-        ((b.popularity - a.popularity) * 100).toInt()); // descending popularity
-    crew = crew.take(4).toList(); // 4 of the best popularity
 
-    // Characters
-    // Director
-    // Writer
+    final fourPeopleOfDoubleChunks =
+        context.read<MovieDetailsModel>().data.fourPeopleOfDoubleChunks;
 
     return Padding(
       padding: const EdgeInsets.only(left: 20),
       child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(crew[0].name, style: nameStyle),
-                    Text(crew[0].department, style: jobTitleStyle),
-                  ],
+        children: List.generate(
+          fourPeopleOfDoubleChunks.length,
+          (index) => Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(fourPeopleOfDoubleChunks[index][0].name,
+                          style: nameStyle),
+                      Text(fourPeopleOfDoubleChunks[index][0].department,
+                          style: jobTitleStyle),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(crew[1].name, style: nameStyle),
-                    Text(crew[1].department, style: jobTitleStyle),
-                  ],
-                ),
-              ),
-            ],
+                if (fourPeopleOfDoubleChunks[index].length == 2)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(fourPeopleOfDoubleChunks[index][1].name,
+                            style: nameStyle),
+                        Text(fourPeopleOfDoubleChunks[index][1].department,
+                            style: jobTitleStyle),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(crew[2].name, style: nameStyle),
-                    Text(crew[2].department, style: jobTitleStyle),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(crew[3].name, style: nameStyle),
-                    Text(crew[3].department, style: jobTitleStyle),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-        ],
+        ),
       ),
     );
   }

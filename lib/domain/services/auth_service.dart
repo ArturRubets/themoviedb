@@ -14,6 +14,12 @@ class AuthService {
     return isAuth;
   }
 
+  Future<void> _registerSessionAndAccountId(
+      String sessionId, int accountId) async {
+    await _sessionDataProvider.setSessionId(sessionId: sessionId);
+    await _sessionDataProvider.setAccountId(accountId: accountId);
+  }
+
   Future<void> login(String login, String password) async {
     final sessionId = await _authApiClient.auth(
       username: login,
@@ -28,11 +34,11 @@ class AuthService {
       throw const ApiClientException(type: ApiClientExceptionType.other);
     }
 
-    await addSession(sessionId, accountId);
+    await _registerSessionAndAccountId(sessionId, accountId);
   }
 
-  Future<void> addSession(String sessionId, int accountId) async {
-    await _sessionDataProvider.setSessionId(sessionId: sessionId);
-    await _sessionDataProvider.setAccountId(accountId: accountId);
+  Future<void> logout() async {
+    await _sessionDataProvider.deleteSessionId();
+    await _sessionDataProvider.deleteAccountId();
   }
 }

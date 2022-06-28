@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../../library/widgets/inherited/provider.dart';
 import 'movie_details_main_info_widget.dart';
 import 'movie_details_main_screen_cast_widget.dart';
 import 'movie_details_model.dart';
@@ -14,13 +14,21 @@ class MovieDetailsWidget extends StatefulWidget {
 
 class _MovieDetailsWidgetState extends State<MovieDetailsWidget> {
   @override
-  Widget build(BuildContext context) {
-    final model = NotifierProvider.of<MovieDetailsModel>(context);
-    final title = model?.movieDetails?.title;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<MovieDetailsModel>().setupLocale(context);
+  }
 
-    const circularProgressIndicator = Center(
-      child: CircularProgressIndicator(),
-    );
+  @override
+  Widget build(BuildContext context) {
+    final title =
+        context.select<MovieDetailsModel, String>((model) => model.data.title);
+
+    final isLoading = context
+        .select<MovieDetailsModel, bool>((model) => model.data.isLoading);
+
+    const circularProgressIndicator =
+        Center(child: CircularProgressIndicator());
 
     final listView = ListView(
       children: const [
@@ -31,12 +39,11 @@ class _MovieDetailsWidgetState extends State<MovieDetailsWidget> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title ?? 'Загрузка...'),
+        title: Text(title),
       ),
       body: ColoredBox(
         color: const Color.fromRGBO(24, 23, 27, 1),
-        child:
-            model?.movieDetails == null ? circularProgressIndicator : listView,
+        child: isLoading ? circularProgressIndicator : listView,
       ),
     );
   }

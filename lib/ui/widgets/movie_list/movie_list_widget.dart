@@ -73,7 +73,7 @@ class _MovieList extends StatelessWidget {
 class _MovieListRow extends StatelessWidget {
   const _MovieListRow(this.index, {Key? key}) : super(key: key);
 
-  final int index; 
+  final int index;
 
   @override
   Widget build(BuildContext context) {

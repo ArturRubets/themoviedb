@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../domain/api_client/image_downloader.dart';
-import '../../../library/widgets/inherited/provider.dart';
 import 'movie_details_model.dart';
 
 class MovieDetailsMainScreenCastWidget extends StatelessWidget {
@@ -48,9 +48,8 @@ class MovieDetailsMainScreenCastWidget extends StatelessWidget {
   }
 
   Widget showCasts(BuildContext context) {
-    final model = NotifierProvider.of<MovieDetailsModel>(context);
-    final cast = model?.movieDetails?.credits.cast.take(4).toList();
-    if (cast == null) return const SizedBox.shrink();
+    final cast = context.read<MovieDetailsModel>().data.movieDetailsCastData;
+    
     return Padding(
       padding: const EdgeInsets.only(left: 10),
       child: SizedBox(
@@ -109,7 +108,6 @@ class MovieDetailsMainScreenCastWidget extends StatelessWidget {
                           fontSize: 16,
                         ),
                         maxLines: 1,
-                        // overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Padding(

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../library/widgets/inherited/provider.dart' as old_provider;
-import '../../ui/widgets/app/my_app_model.dart';
 import '../../ui/widgets/auth/auth_model.dart';
 import '../../ui/widgets/auth/auth_widget.dart';
 import '../../ui/widgets/loader_widget/loader_view_model.dart';
@@ -26,25 +24,19 @@ class ScreenFactory {
   }
 
   Widget makeAuth() {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthViewModel()),
-        ChangeNotifierProvider(create: (_) => MyAppModel()),
-      ],
+    return ChangeNotifierProvider(
+      create: (_) => AuthViewModel(),
       child: const AuthWidget(),
     );
   }
 
   Widget makeMainScreen() {
-    return ChangeNotifierProvider(
-      create: (_) => MyAppModel(),
-      child: const MainScreenWidget(),
-    );
+    return const MainScreenWidget();
   }
 
-  Widget makeMovieDetails(BuildContext context, int movieId) {
-    return old_provider.NotifierProvider(
-      create: () => MovieDetailsModel(context, movieId: movieId),
+  Widget makeMovieDetails(int movieId) {
+    return ChangeNotifierProvider(
+      create: (_) => MovieDetailsModel(movieId: movieId),
       child: const MovieDetailsWidget(),
     );
   }

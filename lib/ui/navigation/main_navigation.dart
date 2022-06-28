@@ -25,8 +25,7 @@ class MainNavigation {
         final arguments = settings.arguments;
         final movieId = arguments is int ? arguments : 0;
         return MaterialPageRoute(
-          builder: (context) =>
-              _screenFactory.makeMovieDetails(context, movieId),
+          builder: (_) => _screenFactory.makeMovieDetails(movieId),
         );
       case MainNavigationRouteNames.movieTrailerWidget:
         final arguments = settings.arguments;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../domain/factories/screen_factory.dart';
-import '../app/my_app_model.dart';
+import '../../../domain/services/auth_service.dart';
+import '../../navigation/main_navigation.dart';
 
 class MainScreenWidget extends StatefulWidget {
   const MainScreenWidget({Key? key}) : super(key: key);
@@ -29,7 +29,10 @@ class _MainScreenWidgetState extends State<MainScreenWidget> {
         title: const Text('TMDB'),
         actions: [
           IconButton(
-            onPressed: () => context.read<MyAppModel>().resetSession(context),
+            onPressed: () {
+              AuthService().logout();
+              MainNavigation.resetNavigation(context);
+            },
             icon: const Icon(Icons.logout),
           ),
         ],
