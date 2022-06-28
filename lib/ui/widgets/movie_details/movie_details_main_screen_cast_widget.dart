@@ -49,7 +49,7 @@ class MovieDetailsMainScreenCastWidget extends StatelessWidget {
 
   Widget showCasts(BuildContext context) {
     final cast = context.read<MovieDetailsModel>().data.movieDetailsCastData;
-    
+
     return Padding(
       padding: const EdgeInsets.only(left: 10),
       child: SizedBox(

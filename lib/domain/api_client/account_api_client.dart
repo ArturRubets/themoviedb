@@ -35,7 +35,7 @@ class AccountApiClient {
     return result;
   }
 
-  Future<bool> markAsFavotite({
+  Future<void> markAsFavotite({
     required int accountId,
     required String sessionId,
     MediaType mediaType = MediaType.movie,
@@ -69,7 +69,5 @@ class AccountApiClient {
     final jsonBody = convert.jsonDecode(response.body) as Map<String, dynamic>;
 
     _networkClient.validateResponse(response.statusCode, jsonBody);
-
-    return true;
   }
 }
